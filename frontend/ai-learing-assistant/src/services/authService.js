@@ -46,14 +46,14 @@ const updateProfile = async (userData) => {
 
 const changePassword = async (password) => {
     try {
-        const response = await axiosInstance.post(API_PATHS.AUTH.UPDATE_PROFILE, userData);
+        const response = await axiosInstance.post(API_PATHS.AUTH.UPDATE_PROFILE,{ password } );
         return response.data;
     } catch (error) {
         throw error.response?.data || {message: 'An unknown error occured'};
     }
 };
 
-const authservices = {
+const authservice = {
     login,
     register,
     getProfile,
@@ -61,4 +61,4 @@ const authservices = {
     changePassword,
 };
 
-export default authservices;
+export default authservice;
