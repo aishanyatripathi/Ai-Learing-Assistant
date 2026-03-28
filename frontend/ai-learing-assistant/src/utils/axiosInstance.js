@@ -14,31 +14,26 @@ const axiosInstance = axios.create({
 });
 
 //Request Interceptor
-axiosInstance.interceptors.response.use(
+axiosInstance.interceptors.request.use(
     (config) => {
-        const accessToken = localStorage.getItem("token");
-        if( accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`;
+        const token = localStorage.getItem("token");
+
+        //console.log("Interceptor Token:", token); // 👈 DEBUG
+
+        if( token ) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 //Response Interceptor
-axiosInstance.interceptors.request.use(
-    (Response) => {
-        return Response;
-    },
+axiosInstance.interceptors.response.use(
+    (response) => response,
     (error) => {
-        if(error.response) {
-            if(error.response.status ===500) {
-                console.error("Server error, Please try again later.");
-            }
-        }else if (error.code === "ECONNABORTED") {
-            console.error("Request timeout. Please try again.");
+        if(error.response?.status === 401) {
+            console.error("401 Unauthorized - token not sent or invalid");
         }
         return Promise.reject(error);
     }
