@@ -10,16 +10,19 @@ import Tabs from "../../components/common/Tabs";
 
 const DocumentDetailPage = () => {
 
-  const { id } = useParams;
+  const { id } = useParams();
   const [document, setDocument] =useState(null);
   const [ loading, setLoading ] = useState(true);
-  const [acitveTab, setActiveTab ] = useState('Content');
+  const [ activeTab, setActiveTab ] = useState('Content');
 
   useEffect(() => {
     const fetchDocumentDetails = async () => {
       try {
         const data = await documentService.getDocumentById(id);
-        setDocument(data);
+        console.log('Document data:', data);  // ← add here
+        console.log('FilePath:', data.data.filePath);  // ← add this
+
+        setDocument(data.data);
       } catch (error) {
         toast.error('Failed to fetch document details.')
         console.error(error)
@@ -30,27 +33,17 @@ const DocumentDetailPage = () => {
 
     fetchDocumentDetails();
   }, [id]);
-  
-  //Helper function to get the full PDF URL
-  const getPdfUrl = () => {
-    if(!document?.data?.filePath) return null;
-
-    const filePath = document.data.filePath;
-
-    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-      return filePath;
-    }
-
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-    return `${baseUrl}${filePath.startsWith('/') ? '' : '/'}${file} `
-  };
+    
+   //Helper function to get the full PDF URL
+   const getPdfUrl = () => {
+   return document?.filePath || null;
+   };
 
 const renderContent = () => {
-    if (loading) {
-      return <Spinner />;
-    }
 
-    if(!document || !document.data ||!document.data.filePath) {
+  //console.log("INSIDE TAB document:", document);
+
+    if(!document || !document.filePath) {
       return <p className="text-center p-8">No PDF found.</p>;
     }
 
@@ -73,7 +66,7 @@ const renderContent = () => {
       <div className="bg-gray-100 p-1" >
         <iframe 
           src={pdfUrl}
-          className="w-full h-[70vh] bg-whiite rounded border border-gray-300"
+          className="w-full h-[70vh] bg-white rounded border border-gray-300"
           title="PDF Viewer"
           frameBorder="0"
           style={{
@@ -102,11 +95,11 @@ const renderQuizzesTab = () => {
 };
 
 const tabs = [
-  { name: 'Content', label: 'Content' , content: reenderContent() },
-  { name: 'Chat', label: 'Chat', content: renderChat() },
-  { name: 'AI Actions', label: 'AI Actions', content: renderAIActions() },
-  { name: 'Flashcards', label: 'Flashcards', content: renderFlashcardsTab() },
-  { name: 'Quizzes', label: 'Quizzes', content: renderQuizzesTab() },
+  { name: 'Content', label: 'Content' , content: renderContent },
+  { name: 'Chat', label: 'Chat', content: renderChat },
+  { name: 'AI Actions', label: 'AI Actions', content: renderAIActions },
+  { name: 'Flashcards', label: 'Flashcards', content: renderFlashcardsTab },
+  { name: 'Quizzes', label: 'Quizzes', content: renderQuizzesTab },
 ]
 
 if(loading) {
@@ -125,8 +118,8 @@ if (!document) {
         Back to Documents
         </Link>
       </div>
-      <PageHeader title={document.data.title} />
-      <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+      <PageHeader title={document.title} />
+      <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 }   
