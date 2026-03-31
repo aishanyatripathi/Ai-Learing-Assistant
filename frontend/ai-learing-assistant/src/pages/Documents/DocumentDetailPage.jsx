@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import PageHeader from "../../components/common/PageHeader";
 import Tabs from "../../components/common/Tabs";
+import ChatInterface from "../../components/chat/ChatInterface";
 
 
 const DocumentDetailPage = () => {
@@ -19,8 +20,8 @@ const DocumentDetailPage = () => {
     const fetchDocumentDetails = async () => {
       try {
         const data = await documentService.getDocumentById(id);
-        console.log('Document data:', data);  // ← add here
-        console.log('FilePath:', data.data.filePath);  // ← add this
+        // console.log('Document data:', data);  // ← add here
+        // console.log('FilePath:', data.data.filePath);  // ← add this
 
         setDocument(data.data);
       } catch (error) {
@@ -79,7 +80,7 @@ const renderContent = () => {
 };
 
 const renderChat = () => {
-  return "renderChat"
+  return <ChatInterface />
 };
 
 const renderAIActions =() => {

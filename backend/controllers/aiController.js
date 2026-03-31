@@ -196,8 +196,17 @@ export const chat = async (req, res, next) => {
         }
 
         //Find relevant chunks
+        console.log("STEP 1: Document fetched");
+
         const relevantChunks = findRelevantChunks(document.chunks, question, 3);
+
+        console.log("STEP 2: After chunking");
+        console.log("CHUNKS:", document.chunks);
+        console.log("RELEVANT:", relevantChunks);      // 👈 ADD THIS
+
         const chunkIndices = relevantChunks.map(c => c.chunkIndex);
+
+        console.log("STEP 3: Before Gemini call");
 
         //Get or create chat history
         let chatHistory = await ChatHistory.findOne({
@@ -213,9 +222,10 @@ export const chat = async (req, res, next) => {
             });
         }
 
+        
         //Generate response using Gemini
         const answer = await geminiServices.chatWithContext(question , relevantChunks);
-
+        console.log("STEP 4: After Gemini call");
         //Save conversation
         chatHistory.messages.push({
             role: 'user',
@@ -305,7 +315,7 @@ export const getChatHistory = async (req, res, next) => {
         const { documentId } = req.params;
 
         if(!documentId){
-            return req.status(400).json ({
+            return res.status(400).json ({
                 success: false,
                 error: 'Please provide documentId',
                 statusCode: 400
@@ -318,7 +328,7 @@ export const getChatHistory = async (req, res, next) => {
         }).select('messages'); //Only retrive the message array
 
         if (!chatHistory) {
-            return res.statusCode(200).json({
+            return res.status(200).json({
                 success: true,
                 data: [], //Return an empty array if no chat history found
                 message: 'No chat history found for this document'
